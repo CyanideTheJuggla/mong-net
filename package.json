@@ -1,0 +1,32 @@
+{
+  "name": "mong-net",
+  "version": "1.0.0",
+  "description": "MongoDB is a popular choice for many social networks due to its speed with large amounts of data and flexibility with unstructured data. Over the last part of this course, you’ll use several of the technologies that social networking platforms use in their full-stack applications. Because the foundation of these applications is data, it’s important that you understand how to build and structure the API first.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npm run open && npm run watch",
+    "start": "node server.js",
+    "open": "start http://localhost:3001",
+    "watch": "nodemon server.js",
+    "seed": "node ./db/seeds/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CyanideTheJuggla/mong-net.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CyanideTheJuggla/mong-net/issues"
+  },
+  "homepage": "https://github.com/CyanideTheJuggla/mong-net#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "mongoose": "^6.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
