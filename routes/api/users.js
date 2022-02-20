@@ -14,13 +14,12 @@ router.route('/')
     .get(getAllUser)
     .post(postNewUser);
 
-router.route('/:id')
+router.route('/:userId')
     .get(getUserById)
     .put(putUpdateUser)
     .delete(deleteUser);
 
-router.route('/:id/friend')
-    .get(getUserFriends)
+router.route('/:userId/friend/:friendId')
     .put(putAddFriend)
     .delete(deleteUserFriend)
 

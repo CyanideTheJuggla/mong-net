@@ -13,32 +13,8 @@ const userController = {
     getUserById({ params }, res) {
         console.log('getUserById');
         console.log('params', params);
-        User.findOne({ _id: params.id })
+        User.findOne({ _id: params.userId })
         .then(userData => userData ? res.status(200).json(userData) : res.status(404).json({ message: 'No user with this ID' }))
-        .catch(err => {
-            console.log('err', err);
-            res.status(400).json(err);
-        });
-    },
-    getUserFriends({ params, body }, res) {
-        console.log('putUpdateUser');
-        console.log('params', params);
-        console.log('body', body);
-        const userId = params.id;
-        const friendId = body.friends[0];
-        User.findOneAndUpdate({ _id: userId }, body, { new: true })
-        .then(userData => {
-            if(userData) {
-                User.findOne({_id: friendId}).then(friend => {
-                    const friendsArry = friend.friends;
-                    friendsArry.push(userId);
-                    User.updateOne({_id: friend.id}, {friends: friendsArry})
-                })
-                //res.status(200).json(userData); 
-            } else {
-                res.status(404).json({ message: 'No user with this ID' })
-            }
-        })
         .catch(err => {
             console.log('err', err);
             res.status(400).json(err);
@@ -52,42 +28,89 @@ const userController = {
         .catch(err => {
             console.log('err', err);
             res.status(400).json(err);
-        })
+        });
     },
     putUpdateUser({ params, body }, res) {
         console.log('putUpdateUser');
         console.log('params', params);
         console.log('body', body);
-        User.findOneAndUpdate({ _id: params.id }, body, { new: true })
+        User.findOneAndUpdate({ _id: params.userId }, body, { new: true })
+        .then(userData => 
+            userData ? 
+                res.status(200).json(userData) : 
+                res.status(404).json({ message: 'No user with this ID' }))
+        .catch(err => {
+            console.log('err', err);
+            res.status(400).json(err);
+        });
+    },
+    deleteUser ({ params }, res) {
+        console.log('deleteUser');
+        console.log('params', params);
+        User.findOneAndDelete({ _id: params.userId })
         .then(userData => userData ? res.status(200).json(userData) : res.status(404).json({ message: 'No user with this ID' }))
         .catch(err => {
             console.log('err', err);
             res.status(400).json(err);
         });
     },
-    putAddFriend({ params, body }, res) {
-        console.log('putAddFriend');
-        console.log('params', params);
-        console.log('body', body);
-        const userId = params.id;
-        const friendId = body.friends[0];
-        User.findOneAndUpdate({ _id: userId }, body, { new: true })
+    /*
+    getUserFriends({ params, body }, res) {
+        const userId = params.userId;
+        //const friendId = params.friendId;
+        User.findOne({ _id: userId })
         .then(userData => {
             if(userData) {
-                User.findOne({_id: friendId})
-                .then(friend => {
-                    friend.friends.push(userId);
-                    User.updateOne({_id: friend.id}, friend)
-                    .then(friendData => 
-                        friendData ?
-                            res.status(200).json(friendData) : 
-                            res.status(404).json({ message: 'No user with this ID' }))
-                    .catch(err => {
-                        console.log('err', err);
-                        res.status(400).json(err);
+                if(typeof(userData.friends) == typeof([]) && userData.friends.length > 0){
+                    let friendUsers = [];
+                    for (let i = 0; i < userData.friends.length; i++) {
+                        console.log('userData.friends', userData.friends);
+                        const friendId = userData.friends[i];
+                        User.findById(friendId).then(friend =>{
+                            console.log('friend', friend);
+                            console.log('friend', friend ? true : false);
+                            if(friend) friendUsers.push(friend);
+                        })
+                        .then(()=>{
+                            userData.friends = friendUsers;
+                            res.status(200).json(userData.friends); 
+                        });
+                    }
+                } else {
+                    res.status(200).json({message: 'user has no friends'})
+                }
+
+                
+            } else {
+                res.status(404).json({ message: 'No user with this ID' })
+            }
+        })
+        .catch(err => {
+            console.log('err', err);
+            res.status(400).json(err);
+        });
+    },*/
+    putAddFriend({ params }, res) {
+        console.log('putAddFriend');
+        console.log('params', params);
+        const userId = params.userId;
+        const friendId = params.friendId;
+        User.findOne({ _id: userId })
+        .then(userData => {
+            if(userData) {
+                const userAlreadyFriends = userData.friends.filter(val => val.toString().includes(friendId)).length > 0;
+                if(!userAlreadyFriends) userData.friends.push(friendId);
+                userData.save()
+                .then(userSaved => {
+                    User.findOne({_id: friendId})
+                    .then(friend => {
+                        const friendAlreadyFriends = friend.friends.filter(val => val.toString().includes(userId)).length > 0;
+                        if(!friendAlreadyFriends) friend.friends.push(userId);
+                        friend.save()
+                        .then(friendData => friendData ? res.status(200).json({userData, friendData}) : res.status(404).json({message: 'Not found'}) );
                     })
                 })
-                //res.status(200).json(userData); 
+                
             } else {
                 res.status(404).json({ message: 'No user with this ID' })
             }
@@ -98,7 +121,26 @@ const userController = {
         });
     },
     deleteUserFriend ({ params }, res) {
-        console.log('NOT IMPLEMENTED >> deleteUserFriend');
+        console.log('INDEV >> deleteUserFriend');
+        console.log(params);
+        const { userId, friendId } = params;
+
+        console.log('userId', userId);
+        console.log('friendId', friendId);
+
+        User.findOne({_id: userId})
+        .then(userData => {
+            userData.friends = userData.friends.filter(word => !word.toString().includes(friendId));
+            userData.save()
+            .then(userSaved => {
+                User.findOne({_id: friendId})
+                .then(friendData => {
+                    friendData.friends = friendData.friends.filter(word => !word.toString().includes(userId));
+                    friendData.save()
+                    .then(friendSaved => res.status(200).json({ userSaved, friendSaved }));
+                })
+            })
+        })
         /*
         console.log('params', params);
         User.findOneAndDelete({ _id: params.id })
@@ -108,16 +150,7 @@ const userController = {
             res.status(400).json(err);
         });*/
     },
-    deleteUser ({ params }, res) {
-        console.log('deleteUser');
-        console.log('params', params);
-        User.findOneAndDelete({ _id: params.id })
-        .then(userData => userData ? res.status(200).json(userData) : res.status(404).json({ message: 'No user with this ID' }))
-        .catch(err => {
-            console.log('err', err);
-            res.status(400).json(err);
-        });
-    }
+    
 }
 
 module.exports = userController;

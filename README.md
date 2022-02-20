@@ -1,13 +1,19 @@
-# 18 NoSQL: Social Network API
+# Mong-net
 
-MongoDB is a popular choice for many social networks due to its speed with large amounts of data and flexibility with unstructured data. Over the last part of this course, you’ll use several of the technologies that social networking platforms use in their full-stack applications. Because the foundation of these applications is data, it’s important that you understand how to build and structure the API first.
+## Table of Contents
 
-Your challenge is to build an API for a social network using Express.js for routing, a MongoDB database, and the Mongoose ODM. In addition to using the [Express](https://www.npmjs.com/package/express) and [Mongoose](https://www.npmjs.com/package/mongoose) packages, you may also optionally use a JavaScript date library of your choice or the native JavaScript `Date` object to format timestamps.
+- [Description](#description)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Link](#link)
 
-Because this application won’t be deployed, you’ll also need to create a walkthrough video that demonstrates its functionality and all of the following acceptance criteria being met. You’ll need to submit a link to the video and add it to the README of your project.
+---
 
+## Description
 
-## User Story
+MongoDB / Mongoose based API for a social network using Express.js for routing.
+
+### User Story
 
 ```md
 AS A social media startup
@@ -15,10 +21,7 @@ I WANT an API for my social network that uses a NoSQL database
 SO THAT my website can handle large amounts of unstructured data
 ```
 
-
-## Acceptance Criteria
-
-```md
+```
 GIVEN a social network API
 WHEN I enter the command to invoke the application
 THEN my server is started and the Mongoose models are synced to the MongoDB database
@@ -30,123 +33,98 @@ WHEN I test API POST and DELETE routes in Insomnia
 THEN I am able to successfully create and delete reactions to thoughts and add and remove friends to a user’s friend list
 ```
 
-
-## Mock-Up
-
-The following animations show examples of the application's API routes being tested in Insomnia.
-
-The first animation shows GET routes to return all users and all thoughts being tested in Insomnia:
-
-![Homework Demo 01](./Assets/18-nosql-homework-demo-01.gif)
-
-The second animation shows GET routes to return a single user and a single thought being tested in Insomnia:
-
-![Homework Demo 02](./Assets/18-nosql-homework-demo-02.gif)
-
-The third animation shows the POST, PUT, and DELETE routes for users being tested in Insomnia:
-
-![Homework Demo 03](./Assets/18-nosql-homework-demo-03.gif)
-
-Your walkthrough video should also show the POST, PUT, and DELETE routes for thoughts being tested in Insomnia.
-
-The final animation shows the POST and DELETE routes for a user’s friend list being tested in Insomnia:
-
-![Homework Demo 04](./Assets/18-nosql-homework-demo-04.gif)
-
-Your walkthrough video should also show the POST and DELETE routes for reactions to thoughts being tested in Insomnia.
-
-
-## Getting Started
-
-Use the following guidelines to set up your models and API routes:
-
 ### Models
 
-**User**
+#### **User**
 
-* `username`
-    * String
-    * Unique
-    * Required
-    * Trimmed
+- `username`
 
-* `email`
-    * String
-    * Required
-    * Unique
-    * Must match a valid email address (look into Mongoose's matching validation)
+  - String
+  - Unique
+  - Required
+  - Trimmed
+  - RegEx Validated: `/^([\w\.-]){6,16}$/i`
 
-* `thoughts`
-    * Array of `_id` values referencing the `Thought` model
+- `email`
 
-* `friends`
-    * Array of `_id` values referencing the `User` model (self-reference)
+  - String
+  - Required
+  - Unique
+  - Must match a valid email address
+  - RegEx Validated: `/^([\w\.-]){6,16}$/i`
 
-**Schema Settings**
+- `thoughts`
 
-Create a virtual called `friendCount` that retrieves the length of the user's `friends` array field on query
+  - Array of `_id` values referencing the `Thought` model
 
----
+- `friends`
 
-**Thought**
+  - Array of `_id` values referencing the `User` model (self-reference)
 
-* `thoughtText`
-    * String
-    * Required
-    * Must be between 1 and 280 characters
+- `friendCount`
+  - Virtual: retrieves the length of the user's `friends` array field
 
-* `createdAt`
-    * Date
-    * Set default value to the current timestamp
-    * Use a getter method to format the timestamp on query
+#### **Thought**
 
-* `username` - Which user created this thought
-    * String
-    * Required
+- `thoughtText`
 
-* `reactions` (like replies)
-    * Array of nested documents created with the `reactionSchema`
+  - String
+  - Required
+  - Must be between 1 and 280 characters
 
-**Schema Settings**
+- `createdAt`
 
-Create a virtual called `reactionCount` that retrieves the length of the thought's `reactions` array field on query
+  - Date
+  - Set default value to the current timestamp
+  - Uses a getter method to format the timestamp on query as [MM/DD/YYYY]
 
----
+- `username` - Which user created this thought
 
-**Reaction** (SCHEMA ONLY)
+  - String
+  - Required
 
-* `reactionId`
-    * Use Mongoose's ObjectId data type
-    * Default value is set to a new ObjectId
+- `reactions` _Defined below_
 
-* `reactionBody`
-    * String
-    * Required
-    * 280 character maximum
+  - Array of nested documents created with the `reactionSchema`
 
-* `username`
-    * String
-    * Required
+- `reactionCount`
+  - Virtual: retrieves the length of the thought's `reactions` array field
 
-* `createdAt`
-    * Date
-    * Set default value to the current timestamp
-    * Use a getter method to format the timestamp on query
+##### **Reaction** _Schema_
 
-**Schema Settings**
+- `reactionId`
 
-This will not be a model, but rather used as the `reaction` field's subdocument schema in the `Thought` model.
+  - ObjectId
+  - Default value is set to a new ObjectId
 
+- `reactionBody`
+
+  - String
+  - Required
+  - 280 character maximum
+
+- `username`
+
+  - String
+  - Required
+
+- `createdAt`
+  - Date
+  - Set default value to the current timestamp
+  - Uses a getter method to format the timestamp on query as [MM/DD/YYYY]
 
 ### API Routes
 
-**`/api/users`**
+#### User routes
 
-* `GET` all users
+##### **`/api/users`**
 
-* `GET` a single user by its `_id` and populated thought and friend data
+- `GET`
 
-* `POST` a new user:
+  - returns all users
+
+- `POST`
+  - creates a new user
 
 ```json
 // example data
@@ -156,58 +134,95 @@ This will not be a model, but rather used as the `reaction` field's subdocument 
 }
 ```
 
-* `PUT` to update a user by its `_id`
+##### **`/api/users/:userId`**
 
-* `DELETE` to remove user by its `_id`
+- `GET`
 
-**BONUS**: Remove a user's associated thoughts when deleted
+  - returns a single user by its `_id` and populated thought and friend data
 
----
+- `PUT`
 
-**`/api/users/:userId/friends/:friendId`**
+  - updates a user by its `_id`
 
-* `POST` to add a new friend to a user's friend list
+- `DELETE`
+  - removes user by its `_id`
 
-* `DELETE` to remove a friend from a user's friend list
+##### Friend routes
 
----
+###### **`/api/users/:userId/friends/:friendId`**
 
-**`/api/thoughts`**
+- `POST`
 
-* `GET` to get all thoughts
+  - adds a new friend to a user's friend list
+  - also adds the user to the friend's friend list
 
-* `GET` to get a single thought by its `_id`
+- `DELETE`
+  - removes a friend from a user's friend list
+  - also removes the user from the friend's friend list
 
-* `POST` to create a new thought (don't forget to push the created thought's `_id` to the associated user's `thoughts` array field)
+#### Thought routes
+
+##### **`/api/thoughts`**
+
+- `GET`
+
+  - returns all thoughts
+
+- `POST`
+  - creates a new thought (don't forget to push the created thought's `_id` to the associated user's `thoughts` array field)
 
 ```json
 // example data
 {
-  "thoughtText": "Here's a cool thought...",
-  "username": "lernantino",
-  "userId": "5edff358a0fcb779aa7b118b"
+  "thoughtText": "Another thought about things I had",
+  "username": "tokidoki",
+  "userId": "621152048bf711c0605e0e25"
 }
 ```
 
-* `PUT` to update a thought by its `_id`
+##### **`/api/thoughts/:id`**
 
-* `DELETE` to remove a thought by its `_id`
+- `GET`
+
+  - returns a single thought by its `_id`
+
+- `PUT`
+
+  - updates a thought by its `_id`
+
+- `DELETE`
+  - removes a thought by its `_id`
+
+##### Reaction routes
+
+###### **`/api/thoughts/:id/reactions`**
+
+- `POST`
+  - creates a reaction stored in a single thought's `reactions` array field
+
+###### **`/api/thoughts/:id/reactions/:reactionId`**
+
+- `DELETE`
+  - removes a reaction by the reaction's `reactionId` value
 
 ---
 
-**`/api/thoughts/:thoughtId/reactions`**
+## Installation
 
-* `POST` to create a reaction stored in a single thought's `reactions` array field
+- `git clone` this repository locally.
+- Run `npm i` to install all dependencies.
 
-* `DELETE` to pull and remove a reaction by the reaction's `reactionId` value
+---
 
-## Review
+## Usage
 
-You are required to submit BOTH of the following for review:
+When the application is installed, In the terminal input `npm run start` to initiate application. You can then make fetch requests to the routes below. <br/>
+Alternatively, a demo has been deployed to [Heroku](https://spottr-projecttwo.herokuapp.com/)
 
-* A walkthrough video demonstrating the functionality of the application and all of the acceptance criteria being met.
+---
 
-* The URL of the GitHub repository. Give the repository a unique name and include a README describing the project.
+## Link
 
-- - -
-© 2022 Trilogy Education Services, LLC, a 2U, Inc. brand. Confidential and Proprietary. All Rights Reserved.
+[GitHub Repo](https://github.com/Rush0218/spottr)
+
+---

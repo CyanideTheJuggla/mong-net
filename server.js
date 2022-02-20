@@ -15,11 +15,14 @@ app.use((req, res, next) => {
 
 app.use(require('./routes'));
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/pizza-hunt', {
+console.clear();
+
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mong-net', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }, err => { console.log(`MongoDB Connection: ${err ? err : 'Connected. Errors: ' + err}`)});
 mongoose.set('debug', true);
-console.log('Mongoose: \n', mongoose.Schema.ObjectId);
+
+//console.log('Mongoose.Schema.ObjectId(): \n', mongoose.Schema.ObjectId);
 
 app.listen(PORT, () => console.log(`Listening on localhost:${PORT}`));
