@@ -100,8 +100,8 @@ const thoughtController = {
         }
         
     },
-    putAddReaction({ params, body }, res) {
-        console.log('putAddReaction');
+    postAddReaction({ params, body }, res) {
+        console.log('postAddReaction');
         //console.log('params', params);
         console.log('body', body);
         const thoughtId = params.id;

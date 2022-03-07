@@ -90,8 +90,8 @@ const userController = {
             res.status(400).json(err);
         });
     },*/
-    putAddFriend({ params }, res) {
-        console.log('putAddFriend');
+    postAddFriend({ params }, res) {
+        console.log('postAddFriend');
         console.log('params', params);
         const userId = params.userId;
         const friendId = params.friendId;
@@ -107,7 +107,7 @@ const userController = {
                         const friendAlreadyFriends = friend.friends.filter(val => val.toString().includes(userId)).length > 0;
                         if(!friendAlreadyFriends) friend.friends.push(userId);
                         friend.save()
-                        .then(friendData => friendData ? res.status(200).json({userData, friendData}) : res.status(404).json({message: 'Not found'}) );
+                        .then(friendData => friendData ? res.status(200).json({userSaved, friendData}) : res.status(404).json({message: 'Not found'}) );
                     })
                 })
                 
