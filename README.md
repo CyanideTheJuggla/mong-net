@@ -13,6 +13,8 @@
 
 MongoDB / Mongoose based API for a social network using Express.js for routing.
 
+[Video Demo](./mong-net_demo.mp4)
+
 ### User Story
 
 ```md
